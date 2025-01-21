@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios from "axios";
 import { ADD_TO_FAVORITE_FAILURE, ADD_TO_FAVORITE_REQUEST, ADD_TO_FAVORITE_SUCCESS, 
          GET_USER_FAILURE, GET_USER_REQUEST, GET_USER_SUCCESS, 
          LOGIN_FAILURE, LOGIN_REQUEST, LOGIN_SUCCESS, 
@@ -18,6 +18,19 @@ const isValidToken = (token) => {
     }
 }
 
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('jwt');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 // CHANGE 2: Improved token storage
 const storeToken = (token) => {
     if (isValidToken(token)) {
@@ -34,6 +47,9 @@ export const registerUser = (reqData) => async(dispatch) => {
         const {data} = await axios.post(`${API_URL}/auth/signup`, reqData.userData)
         // CHANGE 3: Added token validation before storing
         if(data.jwt && storeToken(data.jwt)) {
+            // const token = `Bearer ${data.jwt}`;
+            localStorage.setItem('jwt', data.jwt); // token
+
             dispatch({type: REGISTER_SUCCESS, payload: data.jwt})
             // CHANGE 4: Moved navigation after dispatch
             if(data.role === "ROLE_RESTAURANT_OWNER") {
@@ -55,10 +71,11 @@ export const loginUser = (reqData) => async(dispatch) => {
     dispatch({type: LOGIN_REQUEST})
     try {
         const {data} = await axios.post(`${API_URL}/auth/signin`, reqData.userData)
-        // CHANGE 5: Added token validation before storing
-        if(data.jwt && storeToken(data.jwt)) {
+        if(data.jwt) {
+            // Store just the token without 'Bearer'
+            localStorage.setItem('jwt', data.jwt);
             dispatch({type: LOGIN_SUCCESS, payload: data.jwt})
-            // CHANGE 6: Moved navigation after dispatch
+            
             if(data.role === "ROLE_RESTAURANT_OWNER") {
                 reqData.navigate("/admin/restaurant")
             } else {
@@ -103,24 +120,34 @@ export const getUser = (jwt) => async(dispatch) => {
 export const addToFavorite = (jwt, restaurantId) => async(dispatch) => {
     dispatch({type: ADD_TO_FAVORITE_REQUEST})
     try {
-        if (!isValidToken(jwt)) {
-            throw new Error("Invalid token format");
+        // if (!isValidToken(jwt)) {
+        //     throw new Error("Invalid token format");
+        // }
+
+        if (!restaurantId ) {
+            throw new Error('Missing restaurant ID, required');
         }
+
         const {data} = await api.put(
-            `/api/restaurant/${restaurantId}/add-favorite`,
-            {},
+            `/api/restaurants/${restaurantId}/add-favorites`,
+            {}, // passing empty body
             {
                 headers: {
-                    'Authorization': `Bearer ${jwt}`,
+                    'Authorization': jwt.startsWith('Bearer ') ? jwt : `Bearer ${jwt}`,
                     'Content-Type': 'application/json'
-                }
+                },
             }
-        )
+        );
         dispatch({type: ADD_TO_FAVORITE_SUCCESS, payload: data})
         console.log("added to favorite", data)
     } catch (error) {
         dispatch({type: ADD_TO_FAVORITE_FAILURE, payload: error})
-        console.error("Add to favorite error:", error)
+        console.error("Add to favorite error:", {
+            message: error.message,
+            restaurantId,
+            hasJwt: !!jwt,
+            fullError: error
+        })
     }
 }
 

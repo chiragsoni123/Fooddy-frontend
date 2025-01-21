@@ -36,6 +36,7 @@ export const getMenuItemsByRestaurantId = (reqData) => {
             console.log("menu item bu restaurants ", data);
             dispatch({type:GET_MENU_ITEMS_BY_RESTAURANT_ID_SUCCESS, payload:data});
         } catch (error) {
+            console.log("catch error ",error);
             dispatch({type: GET_MENU_ITEMS_BY_RESTAURANT_ID_FAILURE,payload:error});
         }
     };
@@ -81,7 +82,7 @@ export const updateMenuItemsAvailability= ({ foodId, jwt}) => {
 };
 
 export const deleteFoodAction = ({foodId, jwt}) => {
-    async (dispatch) => {
+    return async (dispatch) => {
         dispatch({ type: DELETE_MENU_ITEM_REQUEST});
         try {
             const { data} = await api.delete(`/api/admin/food/${foodId}`, {

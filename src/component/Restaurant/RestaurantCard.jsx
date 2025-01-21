@@ -2,17 +2,44 @@ import { Card, Chip, IconButton } from '@mui/material'
 import React from 'react'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+// import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { isPresentInFavorites } from '../config/logic';
+import { addToFavorite } from "../State/Authentication/Action"
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 
 const RestaurantCard = ({item}) => {
     const navigate=useNavigate();
     const dispatch=useDispatch();
     const jwt=localStorage.getItem("jwt")
+    const {auth} = useSelector(store=>store)
 
-    const handleAddToFavorite=() => {
-        dispatch(addToFavorite({restaurantId:item.id, jwt}))
+    // const {restaurant} = useSelector(store=>store)
+
+    const handleAddToFavorite= () => {
+
+        console.log('Restaurant item:', item);
+        console.log('Restaurant ID:', item?.id);
+
+        if(!item?.id){
+            console.log("Restaurant ID is missing");
+            return;
+        }
+
+        console.log('Dispatching with:', {
+            jwt: jwt ? 'JWT present' : 'JWT missing',
+            restaurantId: item.id
+        });
+
+        dispatch(addToFavorite(jwt, item.id))
     }
+
+    const handleNavigateToRestaurant = () => {
+        navigate(`/restaurant/${item.address.city}/${item.name}/${item.id}`)
+    }
+
+    // console.log('RestaurantCard rendered with item:', item);
+
   return (
     <Card className='w-[18rem]'>
 
@@ -31,14 +58,14 @@ const RestaurantCard = ({item}) => {
 
         <div className='p-4 textPart lg:flex w-full justify-between'>
             <div className='space-y-1'>
-                <p className='font-semibold text-lg'>{item.name}</p>
+                <p onClick={handleNavigateToRestaurant} className='font-semibold text-lg cursor-pointer'>{item.name}</p>
                 <p className='text-gray-500 text-sm'>
                     {item.description}
                 </p>
             </div>
             <div className=''>
-                <IconButton>
-                    {true? <FavoriteIcon/>:<FavoriteBorderIcon/>}
+                <IconButton onClick={handleAddToFavorite}>
+                    {isPresentInFavorites(auth.favorites,item)? <FavoriteIcon/>:<FavoriteBorderIcon/>}
                 </IconButton>
             </div>
 
