@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getAllRestaurantsAction } from '../State/Restaurant/Action'
 import { useNavigate } from 'react-router-dom'
 import { findCart } from '../State/Cart/Action'
+import Navbar from '../Navbar/Navbar'
 
 // const restaurants =[1,1,1,1,1,1,1,1]
 const Home = () => {
@@ -27,6 +28,8 @@ const Home = () => {
   return (
     
     <div className='pb-10'>
+        <>
+        <Navbar/>
         <section className='banner -z-50 relative flex flex-col justify-center items-center'>
             <div className='w-[50vw] z-10 text-center' >
                 <p className='text-2xl lg:text-6xl font-bold z-10 py-5'>Fooddy</p>
@@ -53,6 +56,7 @@ const Home = () => {
                 }
             </div>
         </section>
+        </>
         
     </div>
   )

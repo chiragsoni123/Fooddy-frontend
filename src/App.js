@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from './component/State/Authentication/Action';
 import { findCart } from './component/State/Cart/Action';
+import Routers from './Routers/Routers';
 // import { store } from './component/State/store';
 
 function App() {
@@ -27,8 +28,8 @@ function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-       <Navbar/>
-      <CustomerRoute />
+       {/* <Navbar/> */}
+      <Routers />
     </ThemeProvider>
   );
 }

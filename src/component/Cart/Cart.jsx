@@ -7,6 +7,7 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { store } from '../State/store';
 import { createOrder } from '../State/Order/Action';
+import Navbar from '../Navbar/Navbar';
 // import * as Yup from 'yup'
 
 export const style = {
@@ -62,6 +63,7 @@ const Cart = () => {
     }
   return (
     <>
+    <Navbar/>
         <main className='lg:flex justify-between'>
 
             <section className='lg:w-[30] space-y-6 lg:min-h-screen pt-10'>

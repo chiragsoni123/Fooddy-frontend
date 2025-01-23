@@ -6,11 +6,14 @@ import Orders from './Orders';
 import Address from './Address';
 import Favorites from './Favorites';
 import Events from './Events';
+import Navbar from '../Navbar/Navbar';
 
 const Profile = () => {
     const [openSideBar, setOpenSideBar] = useState(false);
   return (
-    <div className='lg:flex justify-between'>
+    <>
+    <Navbar/>
+        <div className='lg:flex justify-between'>
         <div className='sticky h-[80vh] lg:w-[20%]'>
             <ProfileNavigation open={openSideBar}/>
 
@@ -27,6 +30,7 @@ const Profile = () => {
         </div>
 
     </div>
+    </>
   )
 }
 
