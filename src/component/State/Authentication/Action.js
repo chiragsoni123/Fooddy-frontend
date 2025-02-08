@@ -67,29 +67,67 @@ export const registerUser = (reqData) => async(dispatch) => {
     }
 }
 
+// export const loginUser = (reqData) => async(dispatch) => {
+//     dispatch({type: LOGIN_REQUEST})
+//     try {
+//         const {data} = await axios.post(`${API_URL}/auth/signin`, reqData.userData)
+//         if(data.jwt) {
+
+//             console.log("Received token:", data.jwt);
+//             // Store just the token without 'Bearer'
+//             localStorage.setItem('jwt', data.jwt);
+
+//             const storedToken = localStorage.getItem('jwt');
+//             console.log("Stored token:", storedToken);  // testing
+
+//             dispatch({type: LOGIN_SUCCESS, payload: data.jwt})
+            
+//             if(data.role === "ROLE_RESTAURANT_OWNER") {
+//                 reqData.navigate("/admin/restaurant")
+//             } else {
+//                 reqData.navigate("/")
+//             }
+//             console.log("login success", data)
+//         } else {
+//             throw new Error("Invalid token received");
+//         }
+//     } catch (error) {
+//         dispatch({type: LOGIN_FAILURE, payload: error})
+//         console.error("Login error:", error)
+//     }
+// }
+
 export const loginUser = (reqData) => async(dispatch) => {
     dispatch({type: LOGIN_REQUEST})
     try {
         const {data} = await axios.post(`${API_URL}/auth/signin`, reqData.userData)
-        if(data.jwt) {
-            // Store just the token without 'Bearer'
-            localStorage.setItem('jwt', data.jwt);
-            dispatch({type: LOGIN_SUCCESS, payload: data.jwt})
+        
+        // Add debugging
+        console.log("Login response:", data);
+        
+        if(data.token || data.jwt) {  // handle both possible response formats
+            const token = data.token || data.jwt;
+            localStorage.setItem('jwt', token);
+            
+            // Verify storage
+            const storedToken = localStorage.getItem('jwt');
+            console.log("Stored token:", storedToken);
+            
+            dispatch({type: LOGIN_SUCCESS, payload: token})
             
             if(data.role === "ROLE_RESTAURANT_OWNER") {
                 reqData.navigate("/admin/restaurant")
             } else {
                 reqData.navigate("/")
             }
-            console.log("login success", data)
-        } else {
-            throw new Error("Invalid token received");
+            console.log("login success");
         }
     } catch (error) {
-        dispatch({type: LOGIN_FAILURE, payload: error})
         console.error("Login error:", error)
+        dispatch({type: LOGIN_FAILURE, payload: error})
     }
 }
+
 
 // CHANGE 7: Improved API call configuration
 export const getUser = (jwt) => async(dispatch) => {

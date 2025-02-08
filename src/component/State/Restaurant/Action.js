@@ -1,6 +1,7 @@
-
+// import axios from "axios";
 import { api } from "../../config/api";
 import { CREATE_CATEGORY_REQUEST, CREATE_EVENTS_FAILURE, CREATE_EVENTS_REQUEST, CREATE_EVENTS_SUCCESS, CREATE_RESTAURANT_FAILURE, CREATE_RESTAURANT_REQUEST, CREATE_RESTAURANT_SUCCESS, DELETE_EVENTS_FAILURE, DELETE_EVENTS_REQUEST, DELETE_EVENTS_SUCCESS, DELETE_RESTAURANT_FAILURE, DELETE_RESTAURANT_REQUEST, DELETE_RESTAURANT_SUCCESS, GET_ALL_EVENTS_FAILURE, GET_ALL_EVENTS_REQUEST, GET_ALL_EVENTS_SUCCESS, GET_ALL_RESTAURANT_FAILURE, GET_ALL_RESTAURANT_REQUEST, GET_ALL_RESTAURANT_SUCCESS, GET_RESTAURANT_BY_ID_FAILURE, GET_RESTAURANT_BY_ID_REQUEST, GET_RESTAURANT_BY_ID_SUCCESS, GET_RESTAURANT_BY_USER_ID_FAILURE, GET_RESTAURANT_BY_USER_ID_REQUEST, GET_RESTAURANT_BY_USER_ID_SUCCESS, GET_RESTAURANTS_CATEGORY_FAILURE, GET_RESTAURANTS_CATEGORY_REQUEST, GET_RESTAURANTS_CATEGORY_SUCCESS, GET_RESTAURANTS_EVENTS_FAILURE, GET_RESTAURANTS_EVENTS_REQUEST, GET_RESTAURANTS_EVENTS_SUCCESS, UPDATE_RESTAURANT_STATUS_FAILURE, UPDATE_RESTAURANT_STATUS_REQUEST, UPDATE_RESTAURANT_STATUS_SUCCESS } from "./ActionTypes";
+
 
 export const getAllRestaurantsAction = (token) => {
     return async(dispatch) => {
@@ -58,20 +59,53 @@ export const getRestaurantByUserId = (jwt) => {
     };
 };
 
+// export const createRestaurant = (reqData) => {
+//     console.log("token------",reqData.token);
+
+//     return async (dispatch) => {
+//         dispatch({type:CREATE_RESTAURANT_REQUEST});
+//         try {
+//             const { data } = await api.post(`/api/admin/restaurants`,reqData.data, {
+//                 headers: {
+//                     Authorization: `Bearer ${reqData.token}`,
+//                 },
+//             });
+        
+//             dispatch({type:CREATE_RESTAURANT_SUCCESS, payload:data});
+//             console.log("created restaurant ",data);
+//         } catch (error) {
+//             console.log("catch error ",error);
+//             dispatch({type:CREATE_RESTAURANT_FAILURE,payload:error});
+//         }
+//     };
+// };
+
 export const createRestaurant = (reqData) => {
-    console.log("token------",reqData.token);
     return async (dispatch) => {
         dispatch({type:CREATE_RESTAURANT_REQUEST});
+        
+        // validation
+        if (!reqData.token || reqData.jwt) {
+            console.error("No token provided");
+            dispatch({
+                type: CREATE_RESTAURANT_FAILURE,
+                payload: new Error("No authentication token provided")
+            });
+            return;
+        }
+        
         try {
-            const { data } = await api.post(`/api/admin/restaurants`,reqData.data, {
+            console.log("Sending request with token:", reqData.token);
+            const { data } = await api.post(`/api/admin/restaurants`,reqData.data || reqData.jwt, {
                 headers: {
-                    Authorization: `Bearer ${reqData.token}`,
+                    Authorization: `Bearer ${reqData.token || reqData.jwt}`,
                 },
             });
+        
             dispatch({type:CREATE_RESTAURANT_SUCCESS, payload:data});
             console.log("created restaurant ",data);
         } catch (error) {
-            console.log("catch error ",error);
+            console.error("Restaurant creation error:", error.response?.data || error.message);
             dispatch({type:CREATE_RESTAURANT_FAILURE,payload:error});
         }
     };
@@ -83,7 +117,7 @@ export const updateRestaurant = ({ restaurantId, restaurantData, jwt})=> {
     
         try {
             const res = await api.put(
-                `/api/admin/restaurant/${restaurantId}`,
+                `/api/admin/restaurants/${restaurantId}`,
                 restaurantData,
                 {
                     headers:{
@@ -103,7 +137,7 @@ export const deleteRestaurant = ({ restaurantId , jwt }) => {
         dispatch({ type:DELETE_RESTAURANT_REQUEST});
 
         try {
-            const res = await api.delete(`/api/admin/restaurant/${restaurantId}`, {
+            const res = await api.delete(`/api/admin/restaurants/${restaurantId}`, {
                 headers: {
                     Authorization: `Bearer ${jwt}`,
                 },
@@ -146,7 +180,7 @@ export const createEventAction = ({ data, jwt, restaurantId}) => {
 
         try {
             const res = await api.post(
-                `/api/admin/events/resstaurant/${restaurantId}`,
+                `/api/admin/events/resstaurants/${restaurantId}`,
                 data,
                 {
                     headers: {

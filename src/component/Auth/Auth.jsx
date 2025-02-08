@@ -6,7 +6,7 @@ import RegisterForm from './RegisterForm';
 import LoginForm from './LoginForm';
 
 const Auth = () => {
-    const location= useLocation();
+    const location = useLocation();
     const navigate = useNavigate();
     const handleOnClose=() =>{
       navigate("/")

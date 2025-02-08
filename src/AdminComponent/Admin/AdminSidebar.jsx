@@ -39,7 +39,7 @@ const AdminSidebar = ({ handleClose }) => {
 
   return (
     <div>
-      <Drawer
+      <Drawer hidden={isSmallScreen}
         variant={isSmallScreen ? "temporary" : "permanent"}
         onClose={handleClose}
         open={true}
